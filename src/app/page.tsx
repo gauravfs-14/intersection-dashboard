@@ -4,7 +4,11 @@ import FilterBar from "@/components/filter-bar";
 import MobileFilters from "@/components/mobile-filters";
 import MapPanel from "@/components/panels/map-panel";
 import DashboardCharts from "@/components/charts/dashboard-charts";
+import SideChart from "@/components/charts/side-chart";
+import StatCard from "@/components/stats-card";
 import useIntersectionData from "@/hooks/useIntersectionData";
+import { useMemo } from "react";
+import { Card } from "@/components/ui/card";
 
 export default function HomePage() {
   const {
@@ -16,6 +20,50 @@ export default function HomePage() {
     updateFilter,
     clearFilters,
   } = useIntersectionData();
+
+  // Prepare stats for quick display
+  const stats = useMemo(() => {
+    const typeCount = Object.keys(
+      data.reduce((acc, item) => {
+        acc[item.type] = true;
+        return acc;
+      }, {} as Record<string, boolean>)
+    ).length;
+
+    const statusCount = Object.keys(
+      data.reduce((acc, item) => {
+        acc[item.status] = true;
+        return acc;
+      }, {} as Record<string, boolean>)
+    ).length;
+
+    const cityCount = Object.keys(
+      data.reduce((acc, item) => {
+        if (item.cityState) acc[item.cityState] = true;
+        return acc;
+      }, {} as Record<string, boolean>)
+    ).length;
+
+    const countyCount = Object.keys(
+      data.reduce((acc, item) => {
+        if (item.county) acc[item.county] = true;
+        return acc;
+      }, {} as Record<string, boolean>)
+    ).length;
+
+    const avgIcdFt = data.length
+      ? data.reduce((sum, item) => sum + item.icdFt, 0) / data.length
+      : 0;
+
+    return {
+      intersections: filteredCount,
+      types: typeCount,
+      statuses: statusCount,
+      cities: cityCount,
+      counties: countyCount,
+      avgIcdFt: avgIcdFt.toFixed(1),
+    };
+  }, [data, filteredCount]);
 
   return (
     <div className="flex flex-col md:flex-row gap-6 p-6">
@@ -48,60 +96,71 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Map Panel - takes 2/3 of the space on desktop */}
-          <div className="md:col-span-2">
-            <MapPanel data={data} />
+        {/* Quick Stats Row */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+          <StatCard title="Intersections" value={stats.intersections} />
+          <StatCard title="Types" value={stats.types} />
+          <StatCard title="Statuses" value={stats.statuses} />
+          <StatCard title="Cities" value={stats.cities} />
+          <StatCard title="Counties" value={stats.counties} />
+          <StatCard title="Avg ICD (ft)" value={stats.avgIcdFt} />
+        </div>
 
-            {filteredCount > 0 && (
-              <div className="mt-2 text-center text-muted-foreground">
-                Showing {filteredCount} of {totalCount} intersections
-              </div>
-            )}
-          </div>
-
-          {/* Charts Panel - takes 1/3 of the space on desktop */}
-          <div className="md:col-span-1">
-            <h2 className="text-xl font-semibold mb-4">Quick Stats</h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-card border rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold">{filteredCount}</div>
-                  <div className="text-sm text-muted-foreground">
-                    Intersections
-                  </div>
-                </div>
-                <div className="bg-card border rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold">
-                    {
-                      Object.keys(
-                        data.reduce((acc, item) => {
-                          acc[item.type] = true;
-                          return acc;
-                        }, {} as Record<string, boolean>)
-                      ).length
-                    }
-                  </div>
-                  <div className="text-sm text-muted-foreground">Types</div>
-                </div>
-              </div>
+        {/* Main Grid - 3x3 */}
+        <div className="grid grid-cols-3 gap-6 h-[calc(100vh-220px)] grid-rows-3">
+          {/* First column - 3 side charts */}
+          <div className="col-span-1 flex flex-col h-full gap-2 row-span-3">
+            <div className="h-1/3 pb-4">
+              <SideChart
+                data={data}
+                filters={filters}
+                filterKey="type"
+                updateFilter={updateFilter}
+                title="By Type"
+              />
+            </div>
+            <div className="h-1/3 pb-4">
+              <SideChart
+                data={data}
+                filters={filters}
+                filterKey="status"
+                updateFilter={updateFilter}
+                title="By Status"
+              />
+            </div>
+            <div className="h-1/3">
+              <SideChart
+                data={data}
+                filters={filters}
+                filterKey="approaches"
+                updateFilter={updateFilter}
+                title="By Approach Count"
+              />
             </div>
           </div>
 
-          {/* Charts Panel - spans full width below map */}
-          <div className="md:col-span-3">
-            <h2 className="text-xl font-semibold mb-4">Interactive Charts</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              Click on any bar to filter the data. Click again to remove the
-              filter.
-            </p>
+          {/* Map area - spanning middle 2x2 area */}
+          <div className="col-span-2 row-span-2">
+            <Card className="h-full">
+              <MapPanel data={data} />
+            </Card>
+          </div>
+
+          {/* Bottom row - 2 additional charts */}
+          <div className="col-span-2 col-start-2">
             <DashboardCharts
               data={data}
               filters={filters}
               updateFilter={updateFilter}
+              layout="row"
             />
           </div>
         </div>
+        {filteredCount > 0 && (
+          <div className="mt-4 text-center text-sm text-muted-foreground">
+            Showing {filteredCount} of {totalCount} intersections
+          </div>
+        )}
       </div>
     </div>
   );

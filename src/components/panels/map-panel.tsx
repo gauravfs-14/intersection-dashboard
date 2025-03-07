@@ -149,7 +149,7 @@ export default function MapPanel({ data }: MapPanelProps) {
   if (loading) return <Spinner />;
 
   return (
-    <div className="relative h-[60vh] w-full rounded-lg overflow-hidden border">
+    <div className="relative h-full w-full rounded-lg overflow-hidden border">
       <MapContainer
         center={[31.5, -99.5]} // Center of Texas
         zoom={6}
