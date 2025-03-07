@@ -97,7 +97,7 @@ export default function HomePage() {
         </div>
 
         {/* Quick Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-6 gap-4 mb-6">
           <StatCard title="Intersections" value={stats.intersections} />
           <StatCard title="Types" value={stats.types} />
           <StatCard title="Statuses" value={stats.statuses} />

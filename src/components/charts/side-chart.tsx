@@ -120,8 +120,8 @@ export default function SideChart({
       </div>
 
       {/* Chart content */}
-      <div className="p-3 h-full pb-3">
-        <ResponsiveContainer width="100%" height="100%" minHeight={100}>
+      <div className="p-3 h-[calc(100%-2rem)] pb-3">
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
             layout="vertical"
