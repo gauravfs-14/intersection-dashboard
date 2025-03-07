@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { ThemeToggle } from "./theme-toggle";
 
 interface FilterBarProps {
   filters: FilterState;
@@ -87,7 +88,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
     <aside className={`sidebar h-screen border-r ${className}`}>
       <div className="flex h-full flex-col">
         <div className="sticky top-0 z-10 bg-background pt-6 px-4">
-          <h1 className="text-2xl font-bold">TX Intersection Dashboard</h1>
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-2xl font-bold">Texas Intersection Dashboard</h1>
+            {/* <ThemeToggle /> */}
+          </div>
           <Separator className="my-4" />
           <CardHeader className="pb-2 px-0">
             <div className="flex items-center justify-between">
@@ -101,7 +105,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 Clear All
               </Button>
             </div>
-            <div className="text-sm text-muted-foreground flex flex-col gap-2 items-left">
+            <div className="text-sm text-muted-foreground flex flex-col gap-2 items-center">
               <span>
                 Showing {filteredCount} of {totalCount}
               </span>

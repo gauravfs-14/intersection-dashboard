@@ -9,6 +9,7 @@ import "react-leaflet-markercluster/styles";
 import { ScrollArea } from "../ui/scroll-area";
 import { Spinner } from "../ui/spinner";
 import { IntersectionData } from "@/types/IntersectionData";
+import { useTheme } from "next-themes";
 
 // Define the custom icon (declared outside the component so it's not recreated)
 const customIcon = new L.DivIcon({
@@ -25,11 +26,25 @@ const customIcon = new L.DivIcon({
   className: "custom-icon",
 });
 
+// Map tile URLs for light and dark themes
+const mapTiles = {
+  light: {
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  },
+  dark: {
+    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  },
+};
+
 // Popup component for marker details.
 function MarkerPopup({ data }: { data: IntersectionData }) {
   return (
-    <Popup>
-      <div className="p-2">
+    <Popup className="dark:bg-gray-800 dark:text-white">
+      <div className="p-2 dark:bg-gray-800 dark:text-white">
         <h3 className="font-semibold text-lg mb-2">{data.intersection}</h3>
         <ScrollArea className="h-[180px]">
           <ul className="space-y-1 text-sm">
@@ -101,6 +116,7 @@ interface MapPanelProps {
 export default function MapPanel({ data }: MapPanelProps) {
   const [loading, setLoading] = useState(true);
   const [markers, setMarkers] = useState<JSX.Element[]>([]);
+  const { theme } = useTheme();
 
   // Turn off the spinner after data is available.
   useEffect(() => {
@@ -148,17 +164,22 @@ export default function MapPanel({ data }: MapPanelProps) {
 
   if (loading) return <Spinner />;
 
+  // Determine which map tiles to use based on theme
+  const currentMapTiles = theme === "dark" ? mapTiles.dark : mapTiles.light;
+
   return (
     <div className="relative h-full w-full rounded-lg overflow-hidden border">
       <MapContainer
         center={[31.5, -99.5]} // Center of Texas
         zoom={6}
         scrollWheelZoom={true}
-        className="h-full w-full"
+        className={`h-full w-full ${
+          theme === "dark" ? "dark-map" : "light-map"
+        }`}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution={currentMapTiles.attribution}
+          url={currentMapTiles.url}
         />
         <MarkerClusterGroup>{markers}</MarkerClusterGroup>
       </MapContainer>
