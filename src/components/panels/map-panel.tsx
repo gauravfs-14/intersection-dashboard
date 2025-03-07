@@ -168,7 +168,7 @@ export default function MapPanel({ data }: MapPanelProps) {
   const currentMapTiles = theme === "dark" ? mapTiles.dark : mapTiles.light;
 
   return (
-    <div className="relative h-full w-full rounded-lg overflow-hidden border">
+    <div className="relative h-full w-full rounded-lg overflow-hidden border z-50">
       <MapContainer
         center={[31.5, -99.5]} // Center of Texas
         zoom={6}

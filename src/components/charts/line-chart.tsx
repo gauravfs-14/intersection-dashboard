@@ -14,8 +14,8 @@ import {
   AreaChart,
   Cell,
 } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { LineChart as LineChartIcon } from "lucide-react";
+import { Card, CardContent } from "../ui/card";
+import { LineChart as LineChartIcon, Expand, Minimize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Custom tooltip for consistent styling
@@ -60,10 +60,13 @@ export default function LineChart({
   filterKey,
   activeFilters = [],
   onFilterChange,
-  height = 220,
 }: LineChartProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const toggleExpand = () => {
+    setIsExpanded((prev) => !prev);
+  };
 
   // Improved click handler with better type safety and number conversion for years
   const handleClick = (entry: { name: string; value: number } | null) => {
@@ -87,7 +90,12 @@ export default function LineChart({
 
   return (
     <Card
-      className="w-full transition-all duration-300 flex flex-col border border-slate-200 dark:border-slate-700 relative overflow-hidden bg-white dark:bg-slate-900"
+      className={cn(
+        "transition-all duration-300 relative overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900",
+        isExpanded
+          ? "fixed inset-5 z-999"
+          : "w-full max-w-md mx-auto rounded-md shadow-md"
+      )}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => {
         setIsHovering(false);
@@ -100,13 +108,19 @@ export default function LineChart({
           <LineChartIcon className="text-sky-500 dark:text-sky-400 size-5" />
           <h3 className="font-medium text-sm">{title}</h3>
         </div>
-        <div className="text-xs text-slate-500 dark:text-slate-400">
-          {data.length} items
+        <div className="flex items-center gap-2">
+          <div className="text-xs text-slate-500 dark:text-slate-400">
+            {data.length} items
+          </div>
+          <button onClick={toggleExpand} className="p-1">
+            {isExpanded ? <Minimize2 size={16} /> : <Expand size={16} />}
+          </button>
         </div>
       </div>
 
-      <CardContent className="px-4 pb-4 pt-2 flex-1 flex items-center justify-center">
-        <div className="w-full" style={{ height }}>
+      <CardContent className="px-4 pb-4 pt-2 flex-1 flex items-center justify-center h-full">
+        {/* Replace fixed height style with a full height container */}
+        <div className="w-full h-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={data}

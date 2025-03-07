@@ -123,9 +123,9 @@ export default function HomePage() {
               <SideChart
                 data={data}
                 filters={filters}
-                filterKey="status"
+                filterKey="laneType"
                 updateFilter={updateFilter}
-                title="By Status"
+                title="By Lane Type"
               />
             </div>
             <div className="h-1/3">

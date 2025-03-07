@@ -12,7 +12,7 @@ import {
   Cell,
 } from "recharts";
 import { Card, CardContent } from "../ui/card";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Expand, Minimize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Custom tooltip for consistent styling
@@ -50,10 +50,14 @@ export default function BarChart({
   filterKey,
   activeFilters,
   onFilterChange,
-  height = 220,
 }: BarChartProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleExpand = () => {
+    setIsExpanded((prev) => !prev);
+  };
 
   const handleBarClick = (entry: { name: string; value: number }) => {
     const isActive = activeFilters.includes(entry.name);
@@ -62,7 +66,12 @@ export default function BarChart({
 
   return (
     <Card
-      className="w-full shadow-sm transition-all duration-300 flex flex-col border border-slate-200 dark:border-slate-700 relative overflow-hidden bg-white dark:bg-slate-900"
+      className={cn(
+        "transition-all duration-300 relative overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900",
+        isExpanded
+          ? "fixed inset-5 z-999"
+          : "w-full max-w-md mx-auto rounded-md shadow-md"
+      )}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => {
         setIsHovering(false);
@@ -75,13 +84,18 @@ export default function BarChart({
           <BarChart3 className="text-indigo-500 dark:text-indigo-400 size-5" />
           <h3 className="font-medium text-sm">{title}</h3>
         </div>
-        <div className="text-xs text-slate-500 dark:text-slate-400">
-          {data.length} items
+        <div className="flex items-center gap-2">
+          <div className="text-xs text-slate-500 dark:text-slate-400">
+            {data.length} items
+          </div>
+          <button onClick={toggleExpand} className="p-1">
+            {isExpanded ? <Minimize2 size={16} /> : <Expand size={16} />}
+          </button>
         </div>
       </div>
 
-      <CardContent className="px-4 py-4 pt-2 flex-1 flex items-center justify-center">
-        <div className="w-full" style={{ height }}>
+      <CardContent className="px-4 py-4 pt-2 flex-1 flex items-center justify-center h-full">
+        <div className="w-full h-full">
           <ResponsiveContainer width="100%" height="100%">
             <RechartsBarChart
               data={data}

@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { ChartBarIcon } from "lucide-react";
+import { ChartBarIcon, Expand, Minimize2 } from "lucide-react"; // Added icons for expand/collapse
 import { cn } from "@/lib/utils";
 
 // Custom tooltip component for consistent styling
@@ -38,8 +38,7 @@ interface SideChartProps {
     checked: boolean
   ) => void;
   title: string;
-  limit?: number;
-  height?: number;
+  // limit prop is no longer used since limit will be computed dynamically.
 }
 
 // Define a single color theme for the side chart (different from bar chart)
@@ -55,11 +54,15 @@ export default function SideChart({
   filterKey,
   updateFilter,
   title,
-  limit = 5,
-  height = 140,
 }: SideChartProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Compute limit based on expansion state
+  const computedLimit = isExpanded
+    ? data.map((item) => item[filterKey]).filter(Boolean).length
+    : 5;
 
   const chartData = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -71,8 +74,8 @@ export default function SideChart({
     return Object.entries(counts)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, limit);
-  }, [data, filterKey, limit]);
+      .slice(0, computedLimit);
+  }, [data, filterKey, computedLimit]);
 
   const handleClick = (entry: { name: string; value: number }) => {
     updateFilter(
@@ -82,9 +85,18 @@ export default function SideChart({
     );
   };
 
+  const toggleExpand = () => {
+    setIsExpanded((prev) => !prev);
+  };
+
   return (
     <Card
-      className="h-full transition-all duration-300 relative overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+      className={cn(
+        "transition-all duration-300 relative overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900",
+        isExpanded
+          ? "fixed inset-5 z-999"
+          : "w-full max-w-md mx-auto rounded-md shadow-md h-full" // improved minimized styling
+      )}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => {
         setIsHovering(false);
@@ -97,13 +109,18 @@ export default function SideChart({
           <ChartBarIcon className="text-purple-500 dark:text-purple-400 size-5" />
           <h3 className="font-medium text-sm">{title}</h3>
         </div>
-        <div className="text-xs text-slate-500 dark:text-slate-400">
-          {chartData.length} items
+        <div className="flex items-center gap-2">
+          <div className="text-xs text-slate-500 dark:text-slate-400">
+            {chartData.length} items
+          </div>
+          <button onClick={toggleExpand} className="p-1">
+            {isExpanded ? <Minimize2 size={16} /> : <Expand size={16} />}
+          </button>
         </div>
       </div>
 
       {/* Chart content */}
-      <div className="p-3 h-full">
+      <div className="p-3 h-full pb-3">
         <ResponsiveContainer width="100%" height="100%" minHeight={100}>
           <BarChart
             data={chartData}
