@@ -64,7 +64,11 @@ export default function DashboardCharts({
   }, [data]);
 
   // Wrapper function to match the expected types in BarChart
-  const handleFilterChange = (key: string, value: string, checked: boolean) => {
+  const handleFilterChange = (
+    key: string,
+    value: string | number,
+    checked: boolean
+  ) => {
     updateFilter(key as keyof FilterState, value, checked);
   };
 
@@ -82,6 +86,9 @@ export default function DashboardCharts({
         <LineChart
           data={yearChartData}
           title="Intersections by Year Completed"
+          filterKey="yearCompleted"
+          activeFilters={filters.yearCompleted}
+          onFilterChange={handleFilterChange}
           height={180}
         />
       </div>
@@ -120,6 +127,9 @@ export default function DashboardCharts({
         <LineChart
           data={yearChartData}
           title="Intersections by Year Completed"
+          filterKey="yearCompleted"
+          activeFilters={filters.yearCompleted}
+          onFilterChange={handleFilterChange}
           height={220}
         />
       </div>

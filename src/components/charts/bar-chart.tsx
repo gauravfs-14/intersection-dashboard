@@ -65,6 +65,13 @@ export default function BarChart({
               margin={{ top: 10, right: 10, left: 5, bottom: 30 }}
               barSize={30}
               barGap={2}
+              onClick={(data) => {
+                // Handle click on chart area
+                if (data && data.activePayload && data.activePayload[0]) {
+                  const entry = data.activePayload[0].payload;
+                  handleBarClick(entry);
+                }
+              }}
             >
               <defs>
                 <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
@@ -100,7 +107,6 @@ export default function BarChart({
                 dataKey="value"
                 fill="url(#colorBar)"
                 cursor="pointer"
-                onClick={handleBarClick}
                 animationDuration={1000}
                 animationBegin={200}
                 radius={[4, 4, 0, 0]}

@@ -84,6 +84,13 @@ export default function SideChart({
             layout="vertical"
             margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
             barGap={2}
+            onClick={(data) => {
+              // Handle click on chart area
+              if (data && data.activePayload && data.activePayload[0]) {
+                const entry = data.activePayload[0].payload;
+                handleClick(entry);
+              }
+            }}
           >
             <XAxis type="number" hide domain={[0, "dataMax"]} />
             <YAxis
@@ -98,11 +105,11 @@ export default function SideChart({
             <Bar
               dataKey="value"
               fill={baseColor}
-              onClick={handleClick}
               cursor="pointer"
               animationDuration={800}
               animationBegin={0}
               radius={[0, 4, 4, 0]}
+              barSize={25}
             >
               {chartData.map((entry, index) => {
                 const isSelected = (filters[filterKey] as string[]).includes(
