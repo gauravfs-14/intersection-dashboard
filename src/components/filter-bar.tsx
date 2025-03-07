@@ -32,11 +32,6 @@ const FilterBar: React.FC<FilterBarProps> = ({
   filteredCount,
   className = "",
 }) => {
-  // Get active filter count for each category
-  const getActiveFilterCount = (category: keyof FilterState): number => {
-    return filters[category].length;
-  };
-
   // Get total active filter count
   const totalActiveFilters = Object.keys(filters).reduce(
     (count, category) => count + filters[category as keyof FilterState].length,

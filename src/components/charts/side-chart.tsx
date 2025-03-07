@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { FilterState } from "@/types/IntersectionData";
+import { FilterState, IntersectionData } from "@/types/IntersectionData";
 import {
   BarChart,
   Bar,
@@ -15,8 +15,15 @@ import {
 import { ChartBarIcon, Expand, Minimize2 } from "lucide-react"; // Added icons for expand/collapse
 import { cn } from "@/lib/utils";
 
+// Define tooltip props instead of using any
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{ value: number }>;
+  label?: string;
+}
+
 // Custom tooltip component for consistent styling
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 rounded-md shadow-md p-2 text-sm backdrop-blur-sm">
@@ -29,7 +36,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 interface SideChartProps {
-  data: any[];
+  data: IntersectionData[];
   filters: FilterState;
   filterKey: keyof FilterState;
   updateFilter: (

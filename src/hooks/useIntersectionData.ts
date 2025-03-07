@@ -173,7 +173,7 @@ const useIntersectionData = () => {
           (updatedFilter as number[]).push(value);
         }
       } else {
-        const index = updatedFilter.indexOf(value as any);
+        const index = updatedFilter.indexOf(value);
         if (index !== -1) {
           updatedFilter.splice(index, 1);
         }

@@ -56,6 +56,37 @@ const iconMapping = {
   default: <CircleOff className="size-5" />,
 };
 
+// Add these new type and helper function declarations
+type StatCardVariant =
+  | "default"
+  | "intersections"
+  | "types"
+  | "statuses"
+  | "cities"
+  | "counties"
+  | "avgIcdFt";
+
+function getVariant(title: string): StatCardVariant {
+  // Normalize by removing all non-word characters
+  const normalized = title.toLowerCase().replace(/[^\w]/g, "");
+  switch (normalized) {
+    case "intersections":
+      return "intersections";
+    case "types":
+      return "types";
+    case "statuses":
+      return "statuses";
+    case "cities":
+      return "cities";
+    case "counties":
+      return "counties";
+    case "avgicdft":
+      return "avgIcdFt";
+    default:
+      return "default";
+  }
+}
+
 export default function StatCard({
   title,
   value,
@@ -64,8 +95,8 @@ export default function StatCard({
 }: StatCardProps) {
   const [isHovering, setIsHovering] = useState(false);
 
-  // Determine variant based on title
-  const variant = title.toLowerCase().replace(/\s+/g, "") as any;
+  // Replace previous variant assignment with the new helper function
+  const variant: StatCardVariant = getVariant(title);
 
   // Get the icon for this stat type
   const icon =
@@ -106,8 +137,8 @@ export default function StatCard({
         className={cn(
           "absolute bottom-0 left-0 h-1 transition-all duration-300",
           variant !== "default"
-            ? `bg-${variant === "avgicft" ? "cyan" : variant}-500 dark:bg-${
-                variant === "avgicft" ? "cyan" : variant
+            ? `bg-${variant === "avgIcdFt" ? "cyan" : variant}-500 dark:bg-${
+                variant === "avgIcdFt" ? "cyan" : variant
               }-400`
             : "bg-gray-500 dark:bg-gray-400",
           isHovering ? "w-full" : "w-1/3"

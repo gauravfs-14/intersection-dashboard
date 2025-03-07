@@ -2,24 +2,26 @@
 
 import { useState } from "react";
 import {
-  LineChart as RechartsLineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
+  TooltipProps,
   ResponsiveContainer,
-  Legend,
   Area,
   AreaChart,
   Cell,
+  DotProps,
 } from "recharts";
 import { Card, CardContent } from "../ui/card";
 import { LineChart as LineChartIcon, Expand, Minimize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Custom tooltip for consistent styling
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     const color = payload[0]?.stroke || payload[0]?.color || "#6366f1";
     return (
@@ -82,6 +84,25 @@ export default function LineChart({
 
     const isActive = activeFilters.includes(value);
     onFilterChange(filterKey, value, !isActive);
+  };
+
+  // New: Custom active dot component to handle clicks with proper types
+  const CustomActiveDot = (
+    props: DotProps & { payload: { name: string; value: number } }
+  ) => {
+    const { cx, cy, payload } = props;
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={6}
+        stroke={colorSet.base}
+        strokeWidth={2}
+        fill="#fff"
+        cursor="pointer"
+        onClick={() => handleClick(payload)}
+      />
+    );
   };
 
   // Determine which color to use based on the data series
@@ -208,18 +229,7 @@ export default function LineChart({
                 stroke={colorSet.base}
                 strokeWidth={2}
                 fill={`url(#colorValue-0)`}
-                activeDot={{
-                  r: 6,
-                  stroke: colorSet.base,
-                  strokeWidth: 2,
-                  fill: "#fff",
-                  cursor: "pointer",
-                  onClick: (props: any) => {
-                    if (props && props.payload) {
-                      handleClick(props.payload);
-                    }
-                  },
-                }}
+                activeDot={CustomActiveDot}
                 animationDuration={1200}
                 animationBegin={300}
                 style={{ cursor: "pointer" }}

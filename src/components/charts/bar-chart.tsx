@@ -16,7 +16,15 @@ import { BarChart3, Expand, Minimize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Custom tooltip for consistent styling
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: string;
+}) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 rounded-md shadow-md p-3 text-sm backdrop-blur-sm">
