@@ -2,20 +2,12 @@
 import React from "react";
 import { FilterState, FilterOptions } from "../types/IntersectionData";
 
-// Import Shadcn components
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { ThemeToggle } from "./theme-toggle";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 interface FilterBarProps {
   filters: FilterState;
@@ -51,243 +43,114 @@ const FilterBar: React.FC<FilterBarProps> = ({
     0
   );
 
-  // Render filter options for a category
-  const renderFilterOptions = (
+  // NEW: Helper to update entire filter category based on MultiSelect changes.
+  const handleMultiSelectChange = (
     category: keyof FilterState,
-    options: (string | number)[]
+    newSelected: (string | number)[]
   ) => {
-    return (
-      <ScrollArea className="h-[200px]">
-        <div className="space-y-1 p-1">
-          {options.map((option) => (
-            <div
-              key={`${category}-${option}`}
-              className="flex items-center space-x-2 py-1"
-            >
-              <Checkbox
-                id={`${category}-${option}`}
-                checked={filters[category].includes(option as never)}
-                onCheckedChange={(checked) =>
-                  updateFilter(category, option, checked === true)
-                }
-              />
-              <label
-                htmlFor={`${category}-${option}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {option}
-              </label>
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
-    );
+    const currentSelection = filters[category];
+    (filterOptions[category] as (string | number)[]).forEach((option) => {
+      const isInNew = newSelected.includes(option);
+      const isCurrentlySelected = (
+        currentSelection as (string | number)[]
+      ).includes(option);
+      if (isInNew && !isCurrentlySelected) {
+        updateFilter(category, option, true);
+      } else if (!isInNew && isCurrentlySelected) {
+        updateFilter(category, option, false);
+      }
+    });
   };
 
+  // NEW: Beautify category key names.
+  const beautifyKey = (key: string) =>
+    key.charAt(0).toUpperCase() + key.slice(1);
+
   return (
-    <aside className={`sidebar h-screen border-r ${className}`}>
-      <div className="flex h-full flex-col">
-        <div className="sticky top-0 z-10 bg-background pt-6 px-4">
-          <div className="flex items-center justify-between gap-4">
-            <h1 className="text-2xl font-bold">Texas Intersection Dashboard</h1>
-            {/* <ThemeToggle /> */}
-          </div>
-          <Separator className="my-4" />
-          <CardHeader className="pb-2 px-0">
-            <div className="flex items-center justify-between">
-              <CardTitle>Filters</CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                disabled={totalActiveFilters === 0}
-              >
-                Clear All
-              </Button>
+    <aside className={`sidebar h-screen border-r ${className} pb-8`}>
+      <ScrollArea className="h-full pb-4">
+        <div className="flex flex-col">
+          <div className="bg-background pt-6 px-2">
+            {/* Header content */}
+            <div className="flex items-center justify-between gap-4">
+              <h1 className="text-2xl font-bold">
+                Texas Intersection Dashboard
+              </h1>
+              {/* <ThemeToggle /> */}
             </div>
-            <div className="text-sm text-muted-foreground flex flex-col gap-2 items-center">
-              <span>
-                Showing {filteredCount} of {totalCount}
-              </span>
-              {totalActiveFilters > 0 && (
-                <Badge variant="secondary" className="ml-2">
-                  {totalActiveFilters} active{" "}
-                  {totalActiveFilters === 1 ? "filter" : "filters"}
-                </Badge>
-              )}
-            </div>
-          </CardHeader>
-          {/* <Separator className="my-2" /> */}
-        </div>
-
-        <ScrollArea className="flex-1 px-4 pb-4">
-          <Accordion type="multiple" className="w-full">
-            <AccordionItem value="type">
-              <AccordionTrigger className="flex justify-between py-2">
-                <span>Intersection Type</span>
-                {getActiveFilterCount("type") > 0 && (
-                  <Badge variant="secondary" className="ml-auto mr-2">
-                    {getActiveFilterCount("type")}
-                  </Badge>
-                )}
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderFilterOptions("type", filterOptions.type)}
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="status">
-              <AccordionTrigger className="flex justify-between py-2">
-                <span>Status</span>
-                {getActiveFilterCount("status") > 0 && (
-                  <Badge variant="secondary" className="ml-auto mr-2">
-                    {getActiveFilterCount("status")}
-                  </Badge>
-                )}
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderFilterOptions("status", filterOptions.status)}
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="yearCompleted">
-              <AccordionTrigger className="flex justify-between py-2">
-                <span>Year Completed</span>
-                {getActiveFilterCount("yearCompleted") > 0 && (
-                  <Badge variant="secondary" className="ml-auto mr-2">
-                    {getActiveFilterCount("yearCompleted")}
-                  </Badge>
-                )}
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderFilterOptions(
-                  "yearCompleted",
-                  filterOptions.yearCompleted
-                )}
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="txdotDistrict">
-              <AccordionTrigger className="flex justify-between py-2">
-                <span>District</span>
-                {getActiveFilterCount("txdotDistrict") > 0 && (
-                  <Badge variant="secondary" className="ml-auto mr-2">
-                    {getActiveFilterCount("txdotDistrict")}
-                  </Badge>
-                )}
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderFilterOptions(
-                  "txdotDistrict",
-                  filterOptions.txdotDistrict
-                )}
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="cityState">
-              <AccordionTrigger className="flex justify-between py-2">
-                <span>City/State</span>
-                {getActiveFilterCount("cityState") > 0 && (
-                  <Badge variant="secondary" className="ml-auto mr-2">
-                    {getActiveFilterCount("cityState")}
-                  </Badge>
-                )}
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderFilterOptions("cityState", filterOptions.cityState)}
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="county">
-              <AccordionTrigger className="flex justify-between py-2">
-                <span>County</span>
-                {getActiveFilterCount("county") > 0 && (
-                  <Badge variant="secondary" className="ml-auto mr-2">
-                    {getActiveFilterCount("county")}
-                  </Badge>
-                )}
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderFilterOptions("county", filterOptions.county)}
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="onSystem">
-              <AccordionTrigger className="flex justify-between py-2">
-                <span>System</span>
-                {getActiveFilterCount("onSystem") > 0 && (
-                  <Badge variant="secondary" className="ml-auto mr-2">
-                    {getActiveFilterCount("onSystem")}
-                  </Badge>
-                )}
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderFilterOptions("onSystem", filterOptions.onSystem)}
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="previousControlType">
-              <AccordionTrigger className="flex justify-between py-2">
-                <span>Previous Control Type</span>
-                {getActiveFilterCount("previousControlType") > 0 && (
-                  <Badge variant="secondary" className="ml-auto mr-2">
-                    {getActiveFilterCount("previousControlType")}
-                  </Badge>
-                )}
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderFilterOptions(
-                  "previousControlType",
-                  filterOptions.previousControlType
-                )}
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="approaches">
-              <AccordionTrigger className="flex justify-between py-2">
-                <span>Approaches</span>
-                {getActiveFilterCount("approaches") > 0 && (
-                  <Badge variant="secondary" className="ml-auto mr-2">
-                    {getActiveFilterCount("approaches")}
-                  </Badge>
-                )}
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderFilterOptions("approaches", filterOptions.approaches)}
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="laneType">
-              <AccordionTrigger className="flex justify-between py-2">
-                <span>Lane Type</span>
-                {getActiveFilterCount("laneType") > 0 && (
-                  <Badge variant="secondary" className="ml-auto mr-2">
-                    {getActiveFilterCount("laneType")}
-                  </Badge>
-                )}
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderFilterOptions("laneType", filterOptions.laneType)}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
-          {totalActiveFilters > 0 && (
-            <div className="mt-4">
-              <Separator className="my-4" />
-              <div className="flex justify-between items-center">
-                <div className="text-sm text-muted-foreground">
-                  {totalActiveFilters} active{" "}
-                  {totalActiveFilters === 1 ? "filter" : "filters"}
-                </div>
-                <Button variant="outline" size="sm" onClick={clearFilters}>
-                  Clear All Filters
+            <Separator className="my-4" />
+            <CardHeader className="pb-2 px-0">
+              {/* ...existing header inner content... */}
+              <div className="flex items-center justify-between">
+                <CardTitle>Filters</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  disabled={totalActiveFilters === 0}
+                >
+                  Clear All
                 </Button>
               </div>
-            </div>
-          )}
-        </ScrollArea>
-      </div>
+              <div className="text-sm text-muted-foreground flex flex-col gap-2">
+                <span>
+                  Showing {filteredCount} of {totalCount}
+                </span>
+                {totalActiveFilters > 0 && (
+                  <Badge variant="secondary" className="ml-2">
+                    {totalActiveFilters} active{" "}
+                    {totalActiveFilters === 1 ? "filter" : "filters"}
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+          </div>
+
+          <CardContent className="mt-4 px-2 mr-2">
+            {/* Filters content */}
+            {Object.keys(filterOptions).map((categoryKey) => {
+              const category = categoryKey as keyof FilterState;
+              return (
+                <div key={category} className="mb-4">
+                  <label className="block text-sm font-semibold mb-1">
+                    {beautifyKey(category)}
+                  </label>
+                  <MultiSelect
+                    options={(
+                      filterOptions[category] as (string | number)[]
+                    ).map((option) => ({
+                      label: option.toString(),
+                      value: option.toString(),
+                    }))}
+                    value={filters[category].map((val) => val.toString())}
+                    onValueChange={(newSelected) =>
+                      handleMultiSelectChange(category, newSelected)
+                    }
+                    placeholder={`Select ${beautifyKey(category).slice(
+                      0,
+                      8
+                    )}...`}
+                  />
+                </div>
+              );
+            })}
+            {totalActiveFilters > 0 && (
+              <div className="mt-4">
+                <Separator className="my-4" />
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-muted-foreground">
+                    {totalActiveFilters} active{" "}
+                    {totalActiveFilters === 1 ? "filter" : "filters"}
+                  </div>
+                  <Button variant="outline" size="sm" onClick={clearFilters}>
+                    Clear All Filters
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </div>
+      </ScrollArea>
     </aside>
   );
 };
