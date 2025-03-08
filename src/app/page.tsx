@@ -25,11 +25,6 @@ export default function HomePage() {
     clearFilters,
   } = useIntersectionData();
 
-  // Added loading state to avoid redirection due to missing data
-  if (!data) {
-    return <Spinner />;
-  }
-
   // Prepare stats for quick display
   const stats = useMemo(() => {
     const typeCount = Object.keys(
