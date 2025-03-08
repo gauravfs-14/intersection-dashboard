@@ -12,7 +12,6 @@ import StatCard from "@/components/stats-card";
 import useIntersectionData from "@/hooks/useIntersectionData";
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
 
 export default function HomePage() {
   const {
