@@ -2,13 +2,17 @@
 
 import FilterBar from "@/components/filter-bar";
 import MobileFilters from "@/components/mobile-filters";
-import MapPanel from "@/components/panels/map-panel";
+import dynamic from "next/dynamic";
+const MapPanel = dynamic(() => import("@/components/panels/map-panel"), {
+  ssr: false,
+});
 import DashboardCharts from "@/components/charts/dashboard-charts";
 import SideChart from "@/components/charts/side-chart";
 import StatCard from "@/components/stats-card";
 import useIntersectionData from "@/hooks/useIntersectionData";
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function HomePage() {
   const {
@@ -20,6 +24,11 @@ export default function HomePage() {
     updateFilter,
     clearFilters,
   } = useIntersectionData();
+
+  // Added loading state to avoid redirection due to missing data
+  if (!data) {
+    return <Spinner />;
+  }
 
   // Prepare stats for quick display
   const stats = useMemo(() => {
